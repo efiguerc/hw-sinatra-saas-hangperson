@@ -41,18 +41,10 @@ class HangpersonApp < Sinatra::Base
     letter = params[:guess].to_s[0]
     begin
       flash[:message] = "You have already used that letter." unless @game.guess letter
-      case @game.check_win_or_lose
-        when :win
-          redirect '/win'
-        when :lose
-          redirect '/lose'
-        when :play
-          redirect '/show'
-      end
     rescue
       flash[:message] = "Invalid guess."
-      redirect '/show'
     end
+    redirect '/show'
   end
   
   # Everytime a guess is made, we should eventually end up at this route.
@@ -61,14 +53,23 @@ class HangpersonApp < Sinatra::Base
   # Notice that the show.erb template expects to use the instance variables
   # wrong_guesses and word_with_guesses from @game.
   get '/show' do
-    erb :show # You may change/remove this line
+    case @game.check_win_or_lose
+      when :win
+        redirect '/win'
+      when :lose
+        redirect '/lose'
+      when :play
+        erb :show # You may change/remove this line
+    end
   end
   
   get '/win' do
+    redirect '/show' unless @game.check_win_or_lose == :win
     erb :win # You may change/remove this line
   end
   
   get '/lose' do
+    redirect '/show' unless @game.check_win_or_lose == :lose
     erb :lose # You may change/remove this line
   end
   
